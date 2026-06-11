@@ -101,6 +101,20 @@ uv run python src/agents.py --help                           # all options
 --model groq/llama-3.3-70b-versatile  switch LLM provider via litellm
 ```
 
+### Run the web UI
+
+An interactive Gradio app that lets you explore all six governance scenarios without any command line. Requires the pipeline to have been run at least once.
+
+```bash
+uv run python src/app.py    # → http://localhost:7860
+```
+
+**Ask Agent tab** — pick an agent, a patient, and type a question. The UI shows both the LLM's response and the raw governance layer response side by side (masking and denials visible as JSON). Six one-click scenario buttons run each pre-built governance demo without typing.
+
+**Audit Trail tab** — live table of every access event logged by the platform, refreshable on demand.
+
+> **Note on S6:** The "Consent withdrawal + erasure" scenario button mutates the live database. Re-run `uv run python src/pipeline.py` to reset consent state.
+
 ---
 
 ## Key design patterns
