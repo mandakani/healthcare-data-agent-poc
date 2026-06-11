@@ -162,7 +162,7 @@ The Gold analytics view is defined without `name`, `mrn`, or `phone`. The analyt
 | `src/demo.py` | Step 5 — six governance scenarios + audit trail output |
 | `src/agents.py` | Step 6 — litellm agent with `--agent` CLI flag |
 | `src/db.py` | Shared DuckDB connection factory |
-| `src/app.py` | Gradio web UI (work in progress) |
+| `src/app.py` | Gradio web UI — two-tab interactive demo (`uv run python src/app.py`) |
 | `data/platform.duckdb` | Generated database (not committed; created by `pipeline.py`) |
 | `data/source_bundle.json` | Synthetic FHIR bundle (not committed; created by `generate_data.py`) |
 
