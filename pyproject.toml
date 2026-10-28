@@ -1,7 +1,7 @@
 [project]
-name = "humm-poc"
+name = "healthcare-data-agent-poc"
 version = "0.1.0"
-description = "Add your description here"
+description = "Consent-aware healthcare data platform: medallion pipeline, governed access layer and a tool-calling LLM agent"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -10,3 +10,12 @@ dependencies = [
     "litellm>=1.88.1",
     "python-dotenv>=1.2.2",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

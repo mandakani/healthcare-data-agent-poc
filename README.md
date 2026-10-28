@@ -67,10 +67,10 @@ pip install uv          # if you don't have it
 uv sync                 # installs duckdb, litellm, python-dotenv, gradio
 ```
 
-Add a free Groq API key to `.env` (sign up at [console.groq.com](https://console.groq.com) — no credit card):
+Add a free Groq API key (sign up at [console.groq.com](https://console.groq.com) — no credit card). Only the LLM agent and the web UI need it; the governance demo runs offline.
 
-```
-GROQ_API_KEY="your_free_groq_key"
+```bash
+cp .env.example .env    # then set GROQ_API_KEY in .env
 ```
 
 ### Run the governance demo
@@ -79,6 +79,12 @@ GROQ_API_KEY="your_free_groq_key"
 uv run python src/generate_data.py   # Step 1: generate 8 synthetic FHIR patients
 uv run python src/pipeline.py        # Step 2: bronze → silver → gold + classification catalog
 uv run python src/demo.py            # Step 3: six governance scenarios + audit trail
+```
+
+### Run the tests
+
+```bash
+uv run pytest      # gold layer: one row per patient, counts that don't fan out across joins
 ```
 
 ### Run the LLM agent demo
@@ -163,6 +169,7 @@ The Gold analytics view is defined without `name`, `mrn`, or `phone`. The analyt
 | `src/agents.py` | Step 6 — litellm agent with `--agent` CLI flag |
 | `src/db.py` | Shared DuckDB connection factory |
 | `src/app.py` | Gradio web UI — two-tab interactive demo (`uv run python src/app.py`) |
+| `tests/test_pipeline.py` | Gold-layer grain tests |
 | `data/platform.duckdb` | Generated database (not committed; created by `pipeline.py`) |
 | `data/source_bundle.json` | Synthetic FHIR bundle (not committed; created by `generate_data.py`) |
 
