@@ -3,9 +3,8 @@ Step 5 — End-to-end demo. Run after generate_data.py and pipeline.py:
 
     python src/demo.py
 
-Walks through six scenarios that map one-to-one to Humm Care's
-deliverables list: governance, classification, privacy architecture,
-audit/lineage, consent (DPDP), and AI-safe retrieval.
+Walks through six scenarios covering governance, classification,
+privacy architecture, audit/lineage, consent (DPDP), and AI-safe retrieval.
 """
 
 import json

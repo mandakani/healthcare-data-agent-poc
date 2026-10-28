@@ -43,7 +43,7 @@ def make_patient(i: int) -> dict:
     return {
         "resourceType": "Patient",
         "id": pid,
-        "identifier": [{"system": "https://hummcare.example/mrn", "value": f"MRN{700000 + i}"}],
+        "identifier": [{"system": "https://hospital.example/mrn", "value": f"MRN{700000 + i}"}],
         "name": [{"given": [random.choice(FIRST)], "family": random.choice(LAST)}],
         "telecom": [{"system": "phone", "value": f"+91-98{random.randint(10000000, 99999999)}"}],
         "gender": random.choice(["male", "female"]),

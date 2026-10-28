@@ -8,8 +8,8 @@ Tags   : every column registered in a classification catalog
          (PHI_DIRECT / PHI_INDIRECT / CLINICAL / OPERATIONAL) —
          the same pattern as Snowflake object tags driving masking.
 
-Storage is SQLite for portability; swap the connection for DuckDB or
-Snowflake and the SQL carries over almost unchanged.
+Storage is DuckDB; swap the connection for Snowflake or Databricks and
+the SQL carries over almost unchanged.
 
 Run: python src/pipeline.py
 """
@@ -122,22 +122,38 @@ def build_silver(conn) -> None:
 
 def build_gold(conn) -> None:
     """Analytics-ready summary. Note: only PHI_INDIRECT/CLINICAL columns —
-    direct identifiers stay out of the analytics path by design."""
+    direct identifiers stay out of the analytics path by design.
+
+    Grain: one row per patient. Each child table is aggregated to patient
+    level *before* joining, so counts can't fan out (joining encounters and
+    observations directly would count every observation once per encounter)."""
     conn.execute("DROP VIEW IF EXISTS gold_patient_summary")
     conn.execute("""
         CREATE VIEW gold_patient_summary AS
+        WITH enc AS (
+            SELECT patient_id, COUNT(*) AS encounter_count
+            FROM silver_encounter GROUP BY patient_id
+        ), obs AS (
+            SELECT patient_id,
+                   COUNT(*) AS observation_count,
+                   ROUND(AVG(CASE WHEN loinc_code='4548-4' THEN value END), 2) AS avg_hba1c
+            FROM silver_observation GROUP BY patient_id
+        ), cond AS (
+            -- Deterministic pick when a patient has several conditions.
+            SELECT patient_id, arg_min(display, condition_id) AS primary_condition
+            FROM silver_condition GROUP BY patient_id
+        )
         SELECT p.patient_id,
                p.gender,
                year(current_date) - CAST(p.birth_date[1:4] AS INT) AS age,
-               c.display AS primary_condition,
-               COUNT(DISTINCT e.encounter_id) AS encounter_count,
-               COUNT(o.observation_id) AS observation_count,
-               ROUND(AVG(CASE WHEN o.loinc_code='4548-4' THEN o.value END), 2) AS avg_hba1c
+               cond.primary_condition,
+               COALESCE(enc.encounter_count, 0) AS encounter_count,
+               COALESCE(obs.observation_count, 0) AS observation_count,
+               obs.avg_hba1c
         FROM silver_patient p
-        LEFT JOIN silver_condition c ON c.patient_id = p.patient_id
-        LEFT JOIN silver_encounter e ON e.patient_id = p.patient_id
-        LEFT JOIN silver_observation o ON o.patient_id = p.patient_id
-        GROUP BY p.patient_id, p.gender, p.birth_date, c.display""")
+        LEFT JOIN enc  ON enc.patient_id  = p.patient_id
+        LEFT JOIN obs  ON obs.patient_id  = p.patient_id
+        LEFT JOIN cond ON cond.patient_id = p.patient_id""")
 
 
 def main() -> None:
@@ -146,6 +162,8 @@ def main() -> None:
     build_bronze(conn, bundle)
     build_silver(conn)
     build_gold(conn)
+    # A rebuild starts a fresh demo run, so clear the audit trail from earlier runs.
+    conn.execute("DROP TABLE IF EXISTS audit_log")
     conn.commit()
     for t in ["bronze_raw", "silver_patient", "silver_observation", "consent_ledger"]:
         n = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]

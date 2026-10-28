@@ -124,7 +124,8 @@ def run(agent_id: str, patient_id: str, question: str, model: str) -> str:
             result = fn(**json.loads(tc.function.arguments))
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": result})
 
-    return response.choices[0].message.content
+    # Out of tool rounds: the last message is a tool request, not an answer.
+    return response.choices[0].message.content or "Stopped after 4 tool rounds without a final answer."
 
 
 def main():

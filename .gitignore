@@ -11,3 +11,9 @@ wheels/
 
 # Environment variables
 .env
+
+# Generated data (recreate with generate_data.py + pipeline.py)
+data/
+
+# OS junk
+.DS_Store

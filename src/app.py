@@ -1,5 +1,5 @@
 """
-Gradio UI for the Humm Care governance PoC.
+Gradio UI for the consent-aware governance PoC.
 
 Run:
     uv run python src/app.py          # → http://localhost:7860
@@ -189,8 +189,8 @@ SCENARIO_BTNS = [
     ("S6 — Consent withdrawal + erasure ⚠️", scenario_6),
 ]
 
-with gr.Blocks(title="Humm Care — Governance PoC") as app:
-    gr.Markdown("# Humm Care — Consent-Aware Governance PoC")
+with gr.Blocks(title="Consent-Aware Governance PoC") as app:
+    gr.Markdown("# Consent-Aware Healthcare Data Governance PoC")
     gr.Markdown(
         "Select an agent and patient, ask a question, and observe how the governance "
         "layer enforces consent, masking, and scope — even through a live LLM tool call."
